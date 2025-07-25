@@ -38,7 +38,13 @@
         .tagline {
             color: #555;
             font-size: 1.125rem; /* text-lg */
+            margin-bottom: 10px; /* Reduced margin to make space for new line */
+        }
+        .feedback-motto { /* New style for the added tagline */
+            color: #718096; /* Gray-600 */
+            font-size: 0.95rem;
             margin-bottom: 30px;
+            font-style: italic;
         }
         .feedback-display {
             min-height: 120px; /* More space */
@@ -56,6 +62,22 @@
             text-align: center;
             font-style: italic;
             line-height: 1.5;
+            word-break: break-word; /* Ensure long text wraps */
+            position: relative; /* For animation */
+            overflow: hidden; /* Hide overflowing text during animation */
+        }
+        .feedback-text-animated { /* Class for animated text inside feedback-display */
+            position: absolute;
+            width: 100%;
+            padding: 0 25px; /* Match parent padding */
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateY(100%); /* Start from bottom */
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .feedback-text-animated.active {
+            opacity: 1;
+            transform: translateY(0);
         }
         input[type="text"], input[type="email"] {
             width: 100%;
@@ -99,6 +121,14 @@
         .btn-secondary:hover {
             background-color: #059669;
         }
+        .btn-tertiary { /* New button style for Copy */
+            background-color: #3b82f6; /* Blue */
+            color: white;
+            border: 2px solid #2563eb; /* Darker blue */
+        }
+        .btn-tertiary:hover {
+            background-color: #2563eb;
+        }
         .footer-text {
             font-size: 0.95rem; /* Slightly larger */
             color: #718096; /* Gray-600 */
@@ -115,6 +145,30 @@
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
+        /* Custom Alert/Message Box Styles */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .custom-alert-box {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            max-width: 300px;
+            width: 90%;
+        }
     </style>
 </head>
 <body>
@@ -128,12 +182,15 @@
 
         <h1 class="text-5xl font-bold mb-3">The Ghosting Buster</h1>
         <p class="tagline">I know how hard it is to give bad feedback on job interviews. So let the Ghosting Buster do it for you.</p>
+        <p class="feedback-motto">Because ANY feedback is better than no feedback.</p>
 
         <div id="feedbackDisplay" class="feedback-display">
-            Click 'Generate Feedback' to get started!
+            <span id="feedbackTextContent" class="feedback-text-animated active">Click 'Generate Feedback' to get started!</span>
         </div>
 
         <button id="generateBtn" class="btn-primary mx-auto">Generate Feedback</button>
+        <button id="copyBtn" class="btn-tertiary mx-auto mt-4">Copy Feedback</button>
+
 
         <div class="mt-10">
             <h2 class="text-3xl font-semibold text-gray-700 mb-5">Send the Feedback</h2>
@@ -149,6 +206,17 @@
     </div>
 
     <script>
+        // DOM Element References
+        const feedbackDisplay = document.getElementById('feedbackDisplay');
+        const feedbackTextContent = document.getElementById('feedbackTextContent'); // The span inside feedbackDisplay
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const recipientNameInput = document.getElementById('recipientName');
+        const recipientEmailInput = document.getElementById('recipientEmail');
+        const positionNameInput = document.getElementById('positionName');
+
+        // Pre-defined feedback messages
         const feedbackMessages = [
             "We decided to move forward with candidates whose experience was a closer match to the specific requirements of the role.",
             "While your skills are impressive, we felt another candidate's background aligned more directly with the immediate needs of our team/project.",
@@ -167,33 +235,85 @@
             "We saw your permanent file from 4th grade... tsk tsk tsk."
         ];
 
-        const feedbackDisplay = document.getElementById('feedbackDisplay');
-        const generateBtn = document.getElementById('generateBtn');
-        const sendBtn = document.getElementById('sendBtn');
-        const recipientNameInput = document.getElementById('recipientName');
-        const recipientEmailInput = document.getElementById('recipientEmail');
-        const positionNameInput = document.getElementById('positionName');
-
         let currentFeedback = ""; // Store the currently displayed feedback
 
-        function generateRandomFeedback() {
-            const randomIndex = Math.floor(Math.random() * feedbackMessages.length);
-            currentFeedback = feedbackMessages[randomIndex];
-            feedbackDisplay.textContent = currentFeedback;
+        // Function to animate text in/out
+        async function animateFeedbackText(message, delay = 0) {
+            return new Promise(resolve => {
+                // Animate current text out
+                feedbackTextContent.classList.remove('active');
+                feedbackTextContent.style.transform = 'translateY(-100%)'; // Animate up and out
+
+                setTimeout(() => {
+                    // Update content and reset position
+                    feedbackTextContent.textContent = message;
+                    feedbackTextContent.style.transform = 'translateY(100%)'; // Reset to bottom for new entry
+
+                    // Force reflow to ensure the transform reset takes effect before animating in
+                    void feedbackTextContent.offsetWidth;
+
+                    // Animate new text in
+                    feedbackTextContent.classList.add('active');
+                    feedbackTextContent.style.transform = 'translateY(0)';
+
+                    setTimeout(resolve, 300); // Wait for the "in" animation to complete
+                }, 300); // Wait for the "out" animation to complete
+            });
         }
 
+        // Function to generate random feedback with a "roll" effect
+        async function generateRandomFeedback() {
+            generateBtn.disabled = true; // Disable button during animation
+
+            const rollCount = Math.floor(Math.random() * 2) + 3; // 3 or 4 rolls
+            const rollDelay = 150; // Milliseconds between each roll
+
+            // Perform the random rolls
+            for (let i = 0; i < rollCount; i++) {
+                const randomIndex = Math.floor(Math.random() * feedbackMessages.length);
+                await animateFeedbackText(feedbackMessages[randomIndex], rollDelay);
+                await new Promise(resolve => setTimeout(resolve, rollDelay)); // Pause between rolls
+            }
+
+            // Settle on the final feedback
+            const finalIndex = Math.floor(Math.random() * feedbackMessages.length);
+            currentFeedback = feedbackMessages[finalIndex];
+            await animateFeedbackText(currentFeedback, 300); // Slower animation for final result
+
+            generateBtn.disabled = false; // Re-enable button
+        }
+
+        // Function to copy feedback to clipboard
+        function copyFeedbackToClipboard() {
+            if (currentFeedback) {
+                const textarea = document.createElement('textarea');
+                textarea.value = currentFeedback;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showCustomAlert("Feedback copied to clipboard!");
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    showCustomAlert("Failed to copy feedback. Please copy manually.");
+                }
+                document.body.removeChild(textarea);
+            } else {
+                showCustomAlert("No feedback to copy yet!");
+            }
+        }
+
+        // Function to send feedback email
         function sendFeedbackEmail() {
             const recipientName = recipientNameInput.value.trim();
             const recipientEmail = recipientEmailInput.value.trim();
             const positionName = positionNameInput.value.trim();
 
             if (!recipientEmail) {
-                // Using a custom message box instead of alert()
                 showCustomAlert("Please enter the applicant's email address.");
                 return;
             }
             if (!currentFeedback) {
-                // Using a custom message box instead of alert()
                 showCustomAlert("Please generate feedback first!");
                 return;
             }
@@ -212,60 +332,37 @@
 
         // Custom Alert/Message Box functionality
         function showCustomAlert(message) {
-            // Create a simple modal/message box element
+            const existingOverlay = document.querySelector('.custom-alert-overlay');
+            if (existingOverlay) return; // Prevent multiple alerts
+
+            const alertOverlay = document.createElement('div');
+            alertOverlay.className = 'custom-alert-overlay';
+
             const alertBox = document.createElement('div');
-            alertBox.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background-color: white;
-                padding: 25px;
-                border-radius: 10px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                z-index: 1000;
-                text-align: center;
-                font-family: 'Inter', sans-serif;
-                max-width: 300px;
-                width: 90%;
-            `;
+            alertBox.className = 'custom-alert-box';
             alertBox.innerHTML = `
                 <p class="text-lg font-semibold mb-4">${message}</p>
                 <button id="alertCloseBtn" class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors">OK</button>
             `;
 
-            // Create an overlay
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                z-index: 999;
-            `;
-
-            document.body.appendChild(overlay);
-            document.body.appendChild(alertBox);
+            alertOverlay.appendChild(alertBox);
+            document.body.appendChild(alertOverlay);
 
             document.getElementById('alertCloseBtn').addEventListener('click', () => {
-                document.body.removeChild(alertBox);
-                document.body.removeChild(overlay);
+                document.body.removeChild(alertOverlay);
             });
 
-            overlay.addEventListener('click', () => {
-                document.body.removeChild(alertBox);
-                document.body.removeChild(overlay);
+            alertOverlay.addEventListener('click', (event) => {
+                if (event.target === alertOverlay) { // Only close if clicking the overlay itself
+                    document.body.removeChild(alertOverlay);
+                }
             });
         }
 
-
         // Event Listeners
         generateBtn.addEventListener('click', generateRandomFeedback);
+        copyBtn.addEventListener('click', copyFeedbackToClipboard);
         sendBtn.addEventListener('click', sendFeedbackEmail);
-
-        // No longer generating initial feedback on load, as per your request for a starting message.
     </script>
 </body>
 </html>
