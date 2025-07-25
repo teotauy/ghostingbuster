@@ -72,8 +72,8 @@
             padding: 0 25px; /* Match parent padding */
             box-sizing: border-box;
             opacity: 0;
-            transform: translateY(100%); /* Start from bottom */
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            transform: translateY(-100%); /* Start from TOP */
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Default transition */
         }
         .feedback-text-animated.active {
             opacity: 1;
@@ -238,23 +238,26 @@
         let currentFeedback = ""; // Store the currently displayed feedback
 
         // Function to animate text in/out
-        async function animateFeedbackText(message, delay = 0) {
+        async function animateFeedbackText(message) {
             return new Promise(resolve => {
-                // Animate current text out
+                // Remove active class and set transform for exit animation (downwards)
                 feedbackTextContent.classList.remove('active');
-                feedbackTextContent.style.transform = 'translateY(-100%)'; // Animate up and out
+                feedbackTextContent.style.transform = 'translateY(100%)'; // Move down and out
 
+                // After the exit animation completes, update content and reset position instantly
                 setTimeout(() => {
-                    // Update content and reset position
                     feedbackTextContent.textContent = message;
-                    feedbackTextContent.style.transform = 'translateY(100%)'; // Reset to bottom for new entry
+                    // Temporarily remove transition to make the reset instant
+                    feedbackTextContent.style.transition = 'none';
+                    feedbackTextContent.style.transform = 'translateY(-100%)'; // Reset to top, off-screen
 
                     // Force reflow to ensure the transform reset takes effect before animating in
-                    void feedbackTextContent.offsetWidth;
+                    void feedbackTextContent.offsetWidth; // Triggers reflow
 
-                    // Animate new text in
+                    // Re-add transition and set transform for entry animation (from top)
+                    feedbackTextContent.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
                     feedbackTextContent.classList.add('active');
-                    feedbackTextContent.style.transform = 'translateY(0)';
+                    feedbackTextContent.style.transform = 'translateY(0)'; // Animate from top to center
 
                     setTimeout(resolve, 300); // Wait for the "in" animation to complete
                 }, 300); // Wait for the "out" animation to complete
@@ -266,19 +269,19 @@
             generateBtn.disabled = true; // Disable button during animation
 
             const rollCount = Math.floor(Math.random() * 2) + 3; // 3 or 4 rolls
-            const rollDelay = 150; // Milliseconds between each roll
+            const rollDelay = 200; // Milliseconds between each roll (slightly increased)
 
             // Perform the random rolls
             for (let i = 0; i < rollCount; i++) {
                 const randomIndex = Math.floor(Math.random() * feedbackMessages.length);
-                await animateFeedbackText(feedbackMessages[randomIndex], rollDelay);
+                await animateFeedbackText(feedbackMessages[randomIndex]);
                 await new Promise(resolve => setTimeout(resolve, rollDelay)); // Pause between rolls
             }
 
             // Settle on the final feedback
             const finalIndex = Math.floor(Math.random() * feedbackMessages.length);
             currentFeedback = feedbackMessages[finalIndex];
-            await animateFeedbackText(currentFeedback, 300); // Slower animation for final result
+            await animateFeedbackText(currentFeedback); // Slower animation for final result
 
             generateBtn.disabled = false; // Re-enable button
         }
