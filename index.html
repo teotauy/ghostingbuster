@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Ghosting Buster</title>
+    <!-- Favicon: Ghost Image -->
+    <link rel="icon" href="https://github.com/teotauy/ghostingbuster/blob/5901c90282bcbc8493663b6adeb271b96d099e68/ghost.png?raw=true" type="image/png">
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Bungee for headings, Inter for body -->
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Tone.js for generating sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -196,7 +200,7 @@
         </div>
 
         <p class="footer-text">
-            Or you can hire me: <a href="mailto:iknewyouwouldntghostme@colbyangusblack.com" class="text-blue-600 hover:underline font-semibold">iknewyouwouldntghostme@colbyangusblack.com</a>
+            Or you can hire me: <a href="mailto:iknewyouwouldntghostme@colbyangusblack.com" class="text-blue-600 hover:underline font-semibold">iknewyouwouldntghostme@colbyangyusblack.com</a>
         </p>
     </div>
 
@@ -205,11 +209,57 @@
         const feedbackDisplay = document.getElementById('feedbackDisplay');
         const feedbackTextContent = document.getElementById('feedbackTextContent'); // The span inside feedbackDisplay
         const generateBtn = document.getElementById('generateBtn');
-        // Removed copyBtn reference: const copyBtn = document.getElementById('copyBtn');
         const sendBtn = document.getElementById('sendBtn');
         const recipientNameInput = document.getElementById('recipientName');
         const recipientEmailInput = document.getElementById('recipientEmail');
         const positionNameInput = document.getElementById('positionName');
+
+        // Tone.js Synths for sound effects
+        let clickSynth;
+        let whooshSynth;
+        let dingSynth; // New synth for the "ding" sound
+
+        // Initialize Tone.js and create synths when the window loads
+        window.onload = function() {
+            // Start Tone.js context (required for audio to play)
+            if (Tone.context.state !== 'running') {
+                Tone.start();
+            }
+
+            // Simple synth for button clicks
+            clickSynth = new Tone.Synth({
+                oscillator: { type: "triangle" },
+                envelope: {
+                    attack: 0.005,
+                    decay: 0.1,
+                    sustain: 0.0,
+                    release: 0.1
+                }
+            }).toDestination();
+
+            // Synth for whoosh/transition effect during text animation
+            whooshSynth = new Tone.NoiseSynth({
+                noise: { type: "white" },
+                envelope: {
+                    attack: 0.01,
+                    decay: 0.2,
+                    sustain: 0.0,
+                    release: 0.2
+                }
+            }).toDestination();
+
+            // New synth for the "bell ding" sound when final feedback appears
+            dingSynth = new Tone.Synth({
+                oscillator: { type: "sine" }, // Clean sine wave for bell
+                envelope: {
+                    attack: 0.005, // Very quick attack
+                    decay: 0.4, // Slightly longer decay for a bell ring
+                    sustain: 0.0,
+                    release: 0.4 // Quick release
+                }
+            }).toDestination();
+        };
+
 
         // Pre-defined feedback messages
         const feedbackMessages = [
@@ -235,6 +285,11 @@
         // Function to animate text in/out
         async function animateFeedbackText(message) {
             return new Promise(resolve => {
+                // Play whoosh sound when text starts animating out
+                if (whooshSynth) {
+                    whooshSynth.triggerAttackRelease("8n"); // Short burst of noise
+                }
+
                 // Remove active class and set transform for exit animation (downwards)
                 feedbackTextContent.classList.remove('active');
                 feedbackTextContent.style.transform = 'translateY(100%)'; // Move down and out
@@ -261,6 +316,11 @@
 
         // Function to generate random feedback with a "roll" effect
         async function generateRandomFeedback() {
+            // Play click sound when button is pressed
+            if (clickSynth) {
+                clickSynth.triggerAttackRelease("C4", "8n"); // A short C4 note
+            }
+
             generateBtn.disabled = true; // Disable button during animation
 
             const rollCount = Math.floor(Math.random() * 2) + 3; // 3 or 4 rolls
@@ -278,30 +338,13 @@
             currentFeedback = feedbackMessages[finalIndex];
             await animateFeedbackText(currentFeedback); // Slower animation for final result
 
+            // Play ding sound when the final feedback appears
+            if (dingSynth) {
+                dingSynth.triggerAttackRelease("A5", "8n"); // A slightly higher note for a clearer bell sound
+            }
+
             generateBtn.disabled = false; // Re-enable button
         }
-
-        // Removed Function to copy feedback to clipboard
-        /*
-        function copyFeedbackToClipboard() {
-            if (currentFeedback) {
-                const textarea = document.createElement('textarea');
-                textarea.value = currentFeedback;
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {
-                    document.execCommand('copy');
-                    showCustomAlert("Feedback copied to clipboard!");
-                } catch (err) {
-                    console.error('Failed to copy text: ', err);
-                    showCustomAlert("Failed to copy feedback. Please copy manually.");
-                }
-                document.body.removeChild(textarea);
-            } else {
-                showCustomAlert("No feedback to copy yet!");
-            }
-        }
-        */
 
         // Function to send feedback email
         function sendFeedbackEmail() {
@@ -361,7 +404,6 @@
 
         // Event Listeners
         generateBtn.addEventListener('click', generateRandomFeedback);
-        // Removed copyBtn event listener: copyBtn.addEventListener('click', copyFeedbackToClipboard);
         sendBtn.addEventListener('click', sendFeedbackEmail);
     </script>
 </body>
