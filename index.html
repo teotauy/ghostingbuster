@@ -52,6 +52,8 @@
         }
         .feedback-display {
             min-height: 120px; /* More space */
+            max-height: 150px; /* Added max-height */
+            overflow-y: auto; /* Added scroll for overflow */
             background-color: #f0f8ff; /* Light blue background */
             border: 2px dashed #a78bfa; /* Dashed border for fun */
             border-radius: 12px;
@@ -78,11 +80,22 @@
             opacity: 0;
             transform: translateY(-100%); /* Start from TOP */
             transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Default transition */
+            font-size: 1.25rem; /* Default text-xl */
         }
         .feedback-text-animated.active {
             opacity: 1;
             transform: translateY(0);
         }
+        /* Responsive font size for smaller screens */
+        @media (max-width: 640px) {
+            .feedback-text-animated {
+                font-size: 1rem; /* Smaller font on mobile */
+            }
+            .feedback-display {
+                padding: 15px; /* Less padding on mobile */
+            }
+        }
+
         input[type="text"], input[type="email"] {
             width: 100%;
             padding: 14px; /* More padding */
@@ -264,7 +277,7 @@
         // Pre-defined feedback messages
         const feedbackMessages = [
             "We decided to move forward with candidates whose experience was a closer match to the specific requirements of the role.",
-            "While your skills are impressive, we felt another candidate's background aligned more directly with the immediate needs of our team/project.",
+            "While your skills are impressive, we felt another candidate's background aligned more directly with the immediate needs of our team.",
             "We had an exceptionally strong pool of candidates, and it was a very competitive decision.",
             "We've decided to go in a different direction with this role.",
             "The needs of the role have evolved since we first posted it.",
@@ -272,8 +285,8 @@
             "We found someone internally.",
             "We hired another person.",
             "Our cat walked across the keyboard and deleted your application. We're pretty sure it was an accident.",
-            "We've decided to pivot to a completely new business model involving artisanal cheese and interpretive dance. Your skills just don't align.",
-            "The hiring manager accidentally joined a multi-level marketing scheme and is now selling essential oils. The role is on hold indefinitely.",
+            "We've decided to pivot to a new business model involving artisanal cheese and interpretive dance. Your skills just don't align.",
+            "The hiring manager accidentally joined a multi-level marketing scheme. The role is on hold indefinitely.",
             "We loved you, but the office plant gave us a bad vibe. We trust the plant.",
             "Aliens, man. They abducted our top candidate, and frankly, we're a bit spooked to hire anyone else right now.",
             "We hired your ex.",
