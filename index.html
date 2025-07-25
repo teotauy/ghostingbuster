@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ghosting Buster</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Bungee for headings, Inter for body -->
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 20px; /* More rounded */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+            padding: 40px; /* More padding */
+            width: 100%;
+            max-width: 800px; /* Slightly wider */
+            text-align: center;
+            position: relative; /* For the ghost icon */
+            overflow: hidden; /* To contain any overflow from shadows/elements */
+        }
+        h1 {
+            font-family: 'Bungee', cursive; /* Fun, bold font for title */
+            color: #4c51bf; /* Deeper blue/purple */
+            text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1); /* Text shadow for pop */
+        }
+        .tagline {
+            color: #555;
+            font-size: 1.125rem; /* text-lg */
+            margin-bottom: 30px;
+        }
+        .feedback-display {
+            min-height: 120px; /* More space */
+            background-color: #f0f8ff; /* Light blue background */
+            border: 2px dashed #a78bfa; /* Dashed border for fun */
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600;
+            color: #4a5568; /* Slightly darker gray */
+            margin-bottom: 30px;
+            text-align: center;
+            font-style: italic;
+            line-height: 1.5;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 14px; /* More padding */
+            border: 2px solid #e2e8f0; /* Stronger border */
+            border-radius: 10px; /* More rounded */
+            margin-bottom: 18px; /* More margin */
+            font-size: 1.05rem;
+            box-sizing: border-box;
+            background-color: #f8fafc; /* Lighter input background */
+        }
+        button {
+            display: block; /* Make it a block element to apply margin: auto */
+            width: 100%; /* Still allows it to grow */
+            max-width: 400px; /* Limit the maximum width */
+            padding: 14px 30px; /* More padding */
+            border-radius: 10px; /* More rounded */
+            font-weight: 700; /* Bolder */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out; /* Smoother transitions */
+            margin: 10px auto; /* Center the button horizontally */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Button shadow */
+        }
+        button:hover {
+            transform: translateY(-3px) scale(1.02); /* More pronounced hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background-color: #8b5cf6; /* Purple-ish blue */
+            color: white;
+            border: 2px solid #7c3aed; /* Darker border */
+        }
+        .btn-primary:hover {
+            background-color: #7c3aed;
+        }
+        .btn-secondary {
+            background-color: #10b981; /* Emerald green */
+            color: white;
+            border: 2px solid #059669; /* Darker border */
+        }
+        .btn-secondary:hover {
+            background-color: #059669;
+        }
+        .footer-text {
+            font-size: 0.95rem; /* Slightly larger */
+            color: #718096; /* Gray-600 */
+            margin-top: 30px; /* More margin */
+        }
+        .ghost-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px; /* Center and space */
+            animation: float 3s ease-in-out infinite; /* Floating animation */
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Ghost Icon SVG - Now more ghost-like! -->
+        <div class="ghost-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#a78bfa">
+                <path d="M12 1.5c-3.87 0-7 3.13-7 7v7.5c0 1.93 1.57 3.5 3.5 3.5h7c1.93 0 3.5-1.57 3.5-3.5V8.5c0-3.87-3.13-7-7-7zM12 3.5c2.76 0 5 2.24 5 5v2H7V8.5c0-2.76 2.24-5 5-5zM9 13h6v2H9v-2zm0 4h6v2H9v-2z"/>
+            </svg>
+        </div>
+
+        <h1 class="text-5xl font-bold mb-3">The Ghosting Buster</h1>
+        <p class="tagline">I know how hard it is to give bad feedback on job interviews. So let the Ghosting Buster do it for you.</p>
+
+        <div id="feedbackDisplay" class="feedback-display">
+            Click 'Generate Feedback' to get started!
+        </div>
+
+        <button id="generateBtn" class="btn-primary mx-auto">Generate Feedback</button>
+
+        <div class="mt-10">
+            <h2 class="text-3xl font-semibold text-gray-700 mb-5">Send the Feedback</h2>
+            <input type="text" id="recipientName" placeholder="Applicant's Name (e.g., Jane Doe)">
+            <input type="email" id="recipientEmail" placeholder="Applicant's Email (e.g., jane.doe@company.com)">
+            <input type="text" id="positionName" placeholder="Position (e.g., Senior Project Manager)">
+            <button id="sendBtn" class="btn-secondary mx-auto">Send Email</button>
+        </div>
+
+        <p class="footer-text">
+            Or you can hire me: <a href="mailto:iknewyouwouldntghostme@colbyangusblack.com" class="text-blue-600 hover:underline font-semibold">iknewyouwouldntghostme@colbyangusblack.com</a>
+        </p>
+    </div>
+
+    <script>
+        const feedbackMessages = [
+            "We decided to move forward with candidates whose experience was a closer match to the specific requirements of the role.",
+            "While your skills are impressive, we felt another candidate's background aligned more directly with the immediate needs of our team/project.",
+            "We had an exceptionally strong pool of candidates, and it was a very competitive decision.",
+            "We've decided to go in a different direction with this role.",
+            "The needs of the role have evolved since we first posted it.",
+            "We lost funding for the position.",
+            "We found someone internally.",
+            "We hired another person.",
+            "Our cat walked across the keyboard and deleted your application. We're pretty sure it was an accident.",
+            "We've decided to pivot to a completely new business model involving artisanal cheese and interpretive dance. Your skills just don't align.",
+            "The hiring manager accidentally joined a multi-level marketing scheme and is now selling essential oils. The role is on hold indefinitely.",
+            "We loved you, but the office plant gave us a bad vibe. We trust the plant.",
+            "Aliens, man. They abducted our top candidate, and frankly, we're a bit spooked to hire anyone else right now.",
+            "We hired your ex.",
+            "We saw your permanent file from 4th grade... tsk tsk tsk."
+        ];
+
+        const feedbackDisplay = document.getElementById('feedbackDisplay');
+        const generateBtn = document.getElementById('generateBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const recipientNameInput = document.getElementById('recipientName');
+        const recipientEmailInput = document.getElementById('recipientEmail');
+        const positionNameInput = document.getElementById('positionName');
+
+        let currentFeedback = ""; // Store the currently displayed feedback
+
+        function generateRandomFeedback() {
+            const randomIndex = Math.floor(Math.random() * feedbackMessages.length);
+            currentFeedback = feedbackMessages[randomIndex];
+            feedbackDisplay.textContent = currentFeedback;
+        }
+
+        function sendFeedbackEmail() {
+            const recipientName = recipientNameInput.value.trim();
+            const recipientEmail = recipientEmailInput.value.trim();
+            const positionName = positionNameInput.value.trim();
+
+            if (!recipientEmail) {
+                // Using a custom message box instead of alert()
+                showCustomAlert("Please enter the applicant's email address.");
+                return;
+            }
+            if (!currentFeedback) {
+                // Using a custom message box instead of alert()
+                showCustomAlert("Please generate feedback first!");
+                return;
+            }
+
+            const subject = encodeURIComponent(`Regarding your application for the ${positionName || 'position'}`);
+            let body = `Dear ${recipientName || 'Applicant'},\n\n`;
+            body += `Thank you for your interest in the ${positionName || 'position'} at our company. We appreciate you taking the time to interview with our team.\n\n`;
+            body += `After careful consideration, we have decided to move forward with other candidates at this time.\n\n`;
+            body += `Specifically, ${currentFeedback}\n\n`;
+            body += `We wish you the best in your job search.\n\n`;
+            body += `Sincerely,\n[Your Name/Company Name]`;
+
+            const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+        }
+
+        // Custom Alert/Message Box functionality
+        function showCustomAlert(message) {
+            // Create a simple modal/message box element
+            const alertBox = document.createElement('div');
+            alertBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+                text-align: center;
+                font-family: 'Inter', sans-serif;
+                max-width: 300px;
+                width: 90%;
+            `;
+            alertBox.innerHTML = `
+                <p class="text-lg font-semibold mb-4">${message}</p>
+                <button id="alertCloseBtn" class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors">OK</button>
+            `;
+
+            // Create an overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                z-index: 999;
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(alertBox);
+
+            document.getElementById('alertCloseBtn').addEventListener('click', () => {
+                document.body.removeChild(alertBox);
+                document.body.removeChild(overlay);
+            });
+
+            overlay.addEventListener('click', () => {
+                document.body.removeChild(alertBox);
+                document.body.removeChild(overlay);
+            });
+        }
+
+
+        // Event Listeners
+        generateBtn.addEventListener('click', generateRandomFeedback);
+        sendBtn.addEventListener('click', sendFeedbackEmail);
+
+        // No longer generating initial feedback on load, as per your request for a starting message.
+    </script>
+</body>
+</html>
