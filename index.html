@@ -121,14 +121,6 @@
         .btn-secondary:hover {
             background-color: #059669;
         }
-        .btn-tertiary { /* New button style for Copy */
-            background-color: #3b82f6; /* Blue */
-            color: white;
-            border: 2px solid #2563eb; /* Darker blue */
-        }
-        .btn-tertiary:hover {
-            background-color: #2563eb;
-        }
         .footer-text {
             font-size: 0.95rem; /* Slightly larger */
             color: #718096; /* Gray-600 */
@@ -139,6 +131,11 @@
             height: 80px;
             margin: 0 auto 20px; /* Center and space */
             animation: float 3s ease-in-out infinite; /* Floating animation */
+        }
+        .ghost-icon img { /* Style for the new image ghost */
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure the image fits within its container */
         }
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -173,11 +170,9 @@
 </head>
 <body>
     <div class="container">
-        <!-- Ghost Icon SVG - Now more ghost-like! -->
+        <!-- Ghost Icon Image -->
         <div class="ghost-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#a78bfa">
-                <path d="M12 1.5c-3.87 0-7 3.13-7 7v7.5c0 1.93 1.57 3.5 3.5 3.5h7c1.93 0 3.5-1.57 3.5-3.5V8.5c0-3.87-3.13-7-7-7zM12 3.5c2.76 0 5 2.24 5 5v2H7V8.5c0-2.76 2.24-5 5-5zM9 13h6v2H9v-2zm0 4h6v2H9v-2z"/>
-            </svg>
+            <img src="http://googleusercontent.com/image_generation_content/2" alt="Friendly Ghost Icon" onerror="this.onerror=null;this.src='https://placehold.co/80x80/a78bfa/FFFFFF?text=Ghost';">
         </div>
 
         <h1 class="text-5xl font-bold mb-3">The Ghosting Buster</h1>
@@ -189,7 +184,7 @@
         </div>
 
         <button id="generateBtn" class="btn-primary mx-auto">Generate Feedback</button>
-        <button id="copyBtn" class="btn-tertiary mx-auto mt-4">Copy Feedback</button>
+        <!-- Removed Copy Feedback Button -->
 
 
         <div class="mt-10">
@@ -210,7 +205,7 @@
         const feedbackDisplay = document.getElementById('feedbackDisplay');
         const feedbackTextContent = document.getElementById('feedbackTextContent'); // The span inside feedbackDisplay
         const generateBtn = document.getElementById('generateBtn');
-        const copyBtn = document.getElementById('copyBtn');
+        // Removed copyBtn reference: const copyBtn = document.getElementById('copyBtn');
         const sendBtn = document.getElementById('sendBtn');
         const recipientNameInput = document.getElementById('recipientName');
         const recipientEmailInput = document.getElementById('recipientEmail');
@@ -286,7 +281,8 @@
             generateBtn.disabled = false; // Re-enable button
         }
 
-        // Function to copy feedback to clipboard
+        // Removed Function to copy feedback to clipboard
+        /*
         function copyFeedbackToClipboard() {
             if (currentFeedback) {
                 const textarea = document.createElement('textarea');
@@ -305,6 +301,7 @@
                 showCustomAlert("No feedback to copy yet!");
             }
         }
+        */
 
         // Function to send feedback email
         function sendFeedbackEmail() {
@@ -364,7 +361,7 @@
 
         // Event Listeners
         generateBtn.addEventListener('click', generateRandomFeedback);
-        copyBtn.addEventListener('click', copyFeedbackToClipboard);
+        // Removed copyBtn event listener: copyBtn.addEventListener('click', copyFeedbackToClipboard);
         sendBtn.addEventListener('click', sendFeedbackEmail);
     </script>
 </body>
